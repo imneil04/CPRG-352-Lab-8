@@ -25,6 +25,7 @@ public class LoginServlet extends HttpServlet {
             throws ServletException, IOException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
+      
         
         AccountService as = new AccountService();
         User user = as.login(email, password);
@@ -35,10 +36,15 @@ public class LoginServlet extends HttpServlet {
             return;
         }
        
+        //assign role id to user that's login 
+        Integer roleId =  user.getRole().getRoleId();
         
+        //get user session and set role id to user 
         HttpSession session = request.getSession();
         session.setAttribute("email", email);
-        
+        session.setAttribute("role_id", roleId);
+      
+        //check if user logged in is admin or not redirect as appropriate 
         if (user.getRole().getRoleId() == 1) {
             response.sendRedirect("admin");
         } else {

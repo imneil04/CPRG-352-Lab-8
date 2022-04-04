@@ -17,11 +17,11 @@ import javax.servlet.http.*;
 
 /**
  *
- * @author neild
+ * @author Mark Del Rosario 
  */
 public class AdminFilter implements Filter {
     
-    
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain)
             throws IOException, ServletException {
@@ -34,31 +34,33 @@ public class AdminFilter implements Filter {
          HttpSession session = httpRequest.getSession();
         
         String email = (String) session.getAttribute("email");
-     
-      
-        if(email == null || email.isEmpty()) {
-            //Not login
-            httpRequest.setAttribute("message", "You are not login. ");
-           // httpResponse.sendRedirect("login");
-            request.getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);           
-            return; 
-        } 
-        if(!session.getId().equals(1)){
-           // request.getServletContext().getRequestDispatcher("/WEB-INF/notes.jsp").forward(request, response); 
-          httpRequest.setAttribute("message", "Test message only ");
-           httpResponse.sendRedirect("notes");
-        }
-        else {
-            //if email is not null or empty, means they are l  
-         chain.doFilter(request, response);  
-         return;
-        }
-        
+        Integer roleId = (Integer) session.getAttribute("role_id"); 
 
-          
+       
+        //check if user is login 
+        if(email == null || email.isEmpty()) {
+           
+           httpRequest.setAttribute("message", "You are not login. ");
+          // httpResponse.sendRedirect("login");
+           request.getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);           
+           return; 
+        } 
+        
+        if(roleId == null || roleId != 1) {     
+          // request.getServletContext().getRequestDispatcher("/WEB-INF/notes.jsp").forward(request, response); 
+           httpResponse.sendRedirect("notes");
+           return; 
+        } 
+        
+        else {
+         //if admin user, give them access   
+          chain.doFilter(request, response);  
+          return;
+        }
+               
     }
 
-  
+ 
     /**
      * Destroy method for this filter
      */
